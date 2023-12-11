@@ -1,0 +1,192 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+#define InitSize 10  //线性表默认最大长度
+
+//顺序表的实现——动态分配
+typedef struct {
+	int* data;     //指示动态分配数组的指针
+	int MaxSize;   //顺序表的最大容量
+	int length;    //顺序表的当前长度
+}SqList;
+
+//顺序表的初始化
+void InitList(SqList& L) {
+	L.data = (int*)malloc(InitSize * sizeof(int));
+	L.length = 0;
+	L.MaxSize = InitSize;
+}
+
+//增加动态数组的最大长度（增加的长度为len）
+void IncreaseSize(SqList& L, int len) {
+	int* p = L.data;
+	L.data = (int*)malloc((L.MaxSize + len) * sizeof(int));
+	for (int i = 0; i < L.MaxSize; i++) {
+		L.data[i] = p[i];                    //将数据复制到新的内存区域
+	}
+	L.MaxSize += len;                        //记录增加的数组长度
+	free(p);                                 //释放原数组的内存空间
+}
+
+//顺序表的插入（将数据e插入到第i个位置）
+bool ListInsert(SqList& L, int i, int e) {
+	if (i<1 || i>L.length)       //判断插入的位置i是否合理
+		return false;
+	if (L.length >= L.MaxSize)              //判断原线性表容量是否已满
+		return false;
+	for (int j = L.length; j >= i; j--){   //将第i个元素之后的元素后移
+		L.data[j] = L.data[j - 1];
+	}
+	L.data[i - 1] = e;                        //在位置i处放入e
+	L.length++;                             //长度加1
+	return true;
+}
+
+//顺序表的删除（删除线性表第i个元素）
+bool ListDelete(SqList& L, int i, int& e) { //注意符号&
+	if (i<1 || i>L.length) //判断删除位置i是否合理 
+		return false;
+	e = L.data[i - 1];                      //将被删除元素赋给e
+	for (int j = i; j <= L.length; j++)     //将第i个元素之后的元素前移
+		L.data[j - 1] = L.data[j];
+	L.length--;                             //长度减1
+	return true;
+}
+
+//顺序表的修改(将位序为i的元素e修改为r）
+bool ListReplace(SqList& L, int i, int& e, int r) {
+	if (i<1 || i>L.length) //判断修改位置i是否合理 
+		return false;
+	e = L.data[i - 1];
+	L.data[i - 1] = r;
+	return true;
+}
+
+//顺序表的按位查找(查找第i个元素的值)
+bool GetElemValue(SqList& L, int i, int& e) {
+	if (i<1 || i>L.length) //判断修改位置i是否合理 
+		return false;
+	e = L.data[i - 1];//查找第i个元素的值
+	return true;
+}
+
+//顺序表的按值查找（查找线性表中是否有元素e，若有，获取其位序b）
+bool GetElemBit(SqList& L, int e, int& b) {
+	for (int i = 0; i < L.length; i++) {
+		if (e == L.data[i - 1]) {
+			b = i - 1;
+			return true;
+		}
+	}
+	return false;//若未查找到元素，返回0
+}
+
+int main() {
+	SqList L;                                    //创建顺序表
+	InitList(L);     //顺序表的初始化
+
+	//创建顺序表
+	do {
+		if (L.length > L.MaxSize)
+			printf("请重新输入\n");
+		printf("请输入所要创建顺序表元素的个数和最大容量：");
+		scanf("%d%d", &L.length, &L.MaxSize);
+	} while (L.length > L.MaxSize);
+	for (int i = 0; i < L.length; i++) {
+		printf("请输入第%d个元素的值：",i+1);
+		scanf("%d", &L.data[i]);
+	}
+	printf("所创建的顺序表为：\n");
+	for (int i = 0; i < L.MaxSize; i++) {
+		printf("data[%d]=%d\n", i, L.data[i]);   //输出顺序表
+	}
+	printf("\n");
+
+	//增加顺序表的最大容量
+	int n;
+	printf("请输入所要增加的容量：");
+	scanf("%d",&n);
+	IncreaseSize(L, n);                          //顺序表的长度增加5
+	printf("新的顺序表为：\n");
+	for (int i = 0; i < L.MaxSize; i++) {
+		printf("data[%d]=%d\n", i, L.data[i]);   //输出新的顺序表
+	}
+	printf("\n");
+
+	//插入操作
+	int e;
+	printf("请输入要插入的元素和插入位序：");
+	scanf("%d%d", &e, &n);
+	if (ListInsert(L, n, e)) {
+		printf("已向第%d个位置插入元素%d\n", n, e);
+		printf("新的顺序表为：\n");
+		for (int i = 0; i < L.MaxSize; i++) {
+			printf("data[%d]=%d\n", i, L.data[i]);   //输出新的顺序表
+		}
+	}
+	else
+		printf("位序i=%d不合法，插入失败\n", n);
+	printf("\n");
+
+	//删除操作
+	printf("请输入要删除元素的位序：");
+	scanf("%d", &n);
+	if (ListDelete(L, n, e)) {
+		printf("已删除第%d个位置，删除元素为%d\n", n, e);//用e把被删除的元素带回来
+		printf("新的顺序表为：\n");
+		for (int i = 0; i < L.MaxSize; i++) {
+			printf("data[%d]=%d\n", i, L.data[i]);   //输出新的顺序表
+		}
+		printf("\n");
+	}
+	else
+		printf("位序i=%d不合法，删除失败\n",n);
+
+	//修改操作
+	int r;
+	printf("请输入要修改元素的位序和要修改成的值：");
+	scanf("%d%d", &n, &r);
+	if (ListReplace(L, n, e, r)) {
+		printf("已修改第%d个位置，修改前元素为%d，修改后元素为%d\n", n, e, r);//用e把被修改的元素带回来
+		printf("新的顺序表为：\n");
+		for (int i = 0; i < L.MaxSize; i++) {
+			printf("data[%d]=%d\n", i, L.data[i]);   //输出新的顺序表
+		}
+		printf("\n");
+	}
+	else
+		printf("位序i=%d不合法，修改失败\n", n);
+
+	//按位查找操作
+	printf("请输入要查找元素的位序：");
+	scanf("%d", &n);
+	if (GetElemValue(L, n, e)) {
+		printf("第%d个位置元素为%d\n", n, e);//用e把被修改的元素带回来
+		printf("新的顺序表为：\n");
+		for (int i = 0; i < L.MaxSize; i++) {
+			printf("data[%d]=%d\n", i, L.data[i]);   //输出新的顺序表
+		}
+		printf("\n");
+	}
+	else
+		printf("位序i=%d不合法，查找失败\n", n);
+
+	//按值查找操作（可优化）
+	int b;
+	printf("请输入要查找元素的值：");
+	scanf("%d", &n);
+	if (GetElemValue(L, n, b)) {
+		printf("查找成功，元素%d位序位%d\n", n, b);//用e把被修改的元素带回来
+		printf("新的顺序表为：\n");
+		for (int i = 0; i < L.MaxSize; i++) {
+			printf("data[%d]=%d\n", i, L.data[i]);   //输出新的顺序表
+		}
+		printf("\n");
+	}
+	else
+		printf("%d不存在于顺序表中\n", n);
+
+
+	return 0;
+}
+

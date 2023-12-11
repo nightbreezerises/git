@@ -1,0 +1,64 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+
+//堆排序
+//注意A[0]不用于存放元素
+
+//交换
+void swap(int& a, int& b) {
+	b = a ^ b;
+	a = a ^ b;
+	b = a ^ b;
+}
+
+//将以k为根的子树调整为大根堆
+void HeadAdjust(int A[], int k, int len) {
+	A[0] = A[k];//A[0]暂存子树的根结点
+	for (int i = 2 * k; i <= len; i *= 2) {//沿key较大的子结点向下筛选
+		if (i < len && A[i + 1] > A[i])//取key较大的子结点的下标
+			i++;
+		if (A[0] >= A[i])break;//筛选结束
+		else {
+			A[k] = A[i];//将A[i]调整到双亲结点上
+			k = i;//修改k值，以便继续向下筛选
+		}
+		A[k] = A[0];//被筛选结点的值放入最终位置
+	}
+}
+
+//建立大根堆
+void BuildMaxHeap(int A[], int len) {
+	for (int i = len / 2; i > 0; i--)//从后往前调整所有非终端结点
+		HeadAdjust(A, i, len);
+}
+
+//堆排序
+void HeapSort(int A[], int len) {
+	BuildMaxHeap(A, len);//初始建堆
+	for (int i = len; i > 1; i--) {// n - 1趟的交换和建堆过程
+		swap(A[1], A[i]); //堆顶元素和堆底元素交换
+		HeadAdjust(A, 1, i - 1);//把剩余的待排序元素整理成堆
+	}
+}
+
+
+
+int main() {
+	int A[20];
+	//A[0] = 12;//带哨兵时A[0]不能存数据
+	A[1] = 6;
+	A[2] = 23;
+	A[3] = 13;
+	A[4] = 666;
+	A[5] = 223;
+	A[6] = 213;
+	A[7] = 263;
+	A[8] = 2783;
+	A[9] = 2453;
+	A[10] = 233;
+	HeapSort(A, 10);
+	for (int i = 1; i <= 10; i++)
+		printf("%d\n", A[i]);
+	return 0;
+}

@@ -1,0 +1,45 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+
+//交换
+void swap(int& a, int& b) {
+	int c = b;
+	b = a;
+	a = c;
+}
+
+//冒泡排序
+void BubbleSort(int A[], int n) {
+	for (int i = 0; i < n; ++i) {
+		bool flag = false;//表示本趟冒泡是否发生交换的标志
+		for (int j = n - 1; j>i; --j) {//一趟冒泡过程
+			if (A[j - 1] > A[j]) {//若为逆序
+				swap(A[j - 1], A[j]);//交换
+				flag = true;
+			}
+		}
+		if (flag == false)//本趟遍历未发生交换则结束
+			return;
+	}
+}
+
+int main() {
+	int A[20];
+	A[0] = 12;//带哨兵时A[0]不能存数据
+	A[1] = 6;
+	A[2] = 23;
+	A[3] = 13;
+	A[4] = 233;
+	A[5] = 223;
+	A[6] = 213;
+	A[7] = 263;
+	A[8] = 2783;
+	A[9] = 2453;
+	BubbleSort(A, 10);
+	for (int i = 0; i < 10; i++)
+		printf("%d\n", A[i]);
+	return 0;
+}
+
+

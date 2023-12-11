@@ -1,0 +1,72 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+
+typedef struct SqStack {
+	int data[10];//静态数组中存放栈中元素
+	int top;//栈顶指针
+}SqStack;
+
+//栈的初始化
+void InitStack(SqStack& S) {
+	S.top = -1;//栈顶指针初始化
+}
+
+//栈的判空
+bool StackEmpty(SqStack S) {
+	if (S.top == -1)
+		return true;
+	else
+		return false;
+}
+
+
+//入栈
+bool Push(SqStack& S, int x) {
+	if (S.top == 9)//判断栈是否已满
+		return false;
+	S.data[++S.top] = x;
+	return true;
+}
+
+//出栈
+bool Pop(SqStack& S, int& x) {
+	if (StackEmpty)//判断栈是否为空
+		return false;
+	x = S.data[S.top--];
+	return true;
+}
+
+//查找栈顶元素
+bool GetTop(SqStack& S, int& x) {
+	if (StackEmpty)//判断栈是否为空
+		return false;
+	x = S.data[S.top];
+	return true;
+}
+
+//栈的遍历
+void Print(SqStack S) {
+	for (int i = 0, n; i <= S.top; i++) {
+		n=S.data[i];
+		printf("%d\n", n);
+	}
+}
+
+//销毁栈
+void Destory(SqStack& S) {
+	InitStack(S);
+}
+
+int main() {
+	SqStack S;
+	InitStack(S);
+	Push(S, 3);
+	for (int i = 0, n; i < 9; i++) {
+		printf("输入第%d个元素：", i + 1);
+		scanf("%d", &n);
+		Push(S, n);
+	}
+	Print(S);
+	return 0;
+}

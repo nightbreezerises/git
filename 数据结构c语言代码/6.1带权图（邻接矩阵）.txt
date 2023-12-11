@@ -1,0 +1,333 @@
+#include<iostream>
+#include<cstdlib>
+#include<vector>
+#include<queue>
+#define MAX(x,y) ((x>y)?x:y)
+#define MIN(x,y) ((x<y)?x:y)
+
+using std::cout;
+using std::cin;
+using std::endl;
+using std::vector;
+using std::queue;
+using std::string;
+
+/*图的基本操作：
+Adjacent(G,x,y):判断图G是否存在边<x, y>或(x, y)。
+Neighbors(G,x):列出图G中与结点x邻接的边。
+lnsertVertex(G,x):在图G中插入顶点x。
+DeleteVertex(G,x):从图G中删除顶点x。
+AddEdge(G,x,y):若无向边(x, y)或有向边<x, y>不存在，则向图G中添加该边。
+RemoveEdge(G,x,y):若无向边(x,y)或有向边<x, y>存在,则从图G中删除该边。
+FirstNeighbor(G,x):求图G中顶点x的第一个邻接点，若有则返回顶点号。若x没有邻接点或图中不存在x，则返回-1。
+NextNeighbor(G,x,y):假设图G中顶点y是顶点x的一个邻接点，返回除y之外顶点x的下一个邻接点的顶点号，若y是x的最后一个邻接点，则返回-1。
+Get_edge_value(G,x,y):获取图G中边(x, y)或<x, y>对应的权值。
+Set_edge_value(G,x,y,v):设置图G中边(x, y)或<x, y>对应的权值为v。
+
+此外，还有图的遍历算法，包括深度优先遍历和广度优先遍历
+*/
+
+typedef int VertexType;//顶点的数据类型
+typedef int EdgeType;//带权图中边上权值的数据类型
+//定义图（邻接矩阵法）
+typedef struct {
+	int vexnum, arcnum;//图的当前顶点(vertex)数，弧(arc)数
+	vector<VertexType>Vex;//顶点(vertex)表
+	vector<vector<EdgeType>> Edge;//邻接矩阵，边表
+}MGraph;
+
+//图的初始化
+void InitGraph(MGraph& G) {
+	G.vexnum = 0;//初始化定点数，边数为0
+	G.arcnum = 0;
+}
+
+bool Adjacent(MGraph G, int x, int y);//判断图G是否存在边<x, y>或(x, y)。
+vector<int>Neighbors(MGraph G, int x);//列出图G中与结点x邻接的边。
+
+bool lnsertVertex(MGraph& G, int x, VertexType v); //在图G中插入顶点x。
+bool DeleteVertex(MGraph& G, int x, VertexType& v); //从图G中删除顶点x。
+
+bool AddEdge(MGraph& G, int x, int y); //若无向边(x, y)或有向边<x, y>不存在，则向图G中添加该边。
+bool RemoveEdge(MGraph& G, int x, int y); //若无向边(x, y)或有向边<x, y>存在, 则从图G中删除该边。
+
+int FirstNeighbor(MGraph G, int x); //求图G中顶点x的第一个邻接点，若有则返回顶点号。若x没有邻接点或图中不存在x，则返回 - 1。
+int NextNeighbor(MGraph G, int x, int y); //假设图G中顶点y是顶点x的一个邻接点，返回除y之外顶点x的下一个邻接点的顶点号，若y是x的最后一个邻接点，则返回 - 1。
+
+int Get_edge_value(MGraph G, int x, int y); //获取图G中边(x, y)或<x, y>对应的权值。
+bool Set_edge_value(MGraph& G, int x, int y, int v); //设置图G中边(x, y)或<x, y>对应的权值为v。
+
+
+
+
+//判断图G是否存在边<x, y>或(x, y)。
+bool Adjacent(MGraph G, int x, int y) {
+	if (G.Edge[x][y])
+		return true;
+	else
+		return false;
+}
+//列出图G中与结点x邻接的边。
+vector<int>Neighbors(MGraph G, int x) {
+	vector<int>A;
+	for (int i = 0; i < G.vexnum; ++i)
+		if (G.Edge[x][i])
+			A.push_back(i);
+	return A;
+}
+
+//在图G中插入顶点x。
+bool lnsertVertex(MGraph& G, int x, VertexType v) {
+	for (int i = G.vexnum; i > x; --i)
+		G.Vex[i] = G.Vex[i - 1];
+	G.Vex[x] = v;
+	++G.vexnum;
+	return true;
+}
+//从图G中删除顶点x。
+bool DeleteVertex(MGraph& G, int x, VertexType& v) {
+	for (int i = x; i < G.vexnum; ++i)
+		G.Vex[i] = G.Vex[i + 1];
+	--G.vexnum;
+	return true;
+}
+
+//若无向边(x, y)或有向边<x, y>不存在，则向图G中添加该边。
+bool AddEdge(MGraph& G, int x, int y) {
+	if (G.Edge[x][y] != INT_MAX || x == y)//边存在时报错
+		return false;
+	G.Edge[x][y] = 1;
+	++G.arcnum;
+	return true;
+}
+//若无向边(x, y)或有向边<x, y>存在, 则从图G中删除该边。
+bool RemoveEdge(MGraph& G, int x, int y) {
+	if (G.Edge[x][y] == INT_MAX || x == y)//边不存在时报错
+		return false;
+	G.Edge[x][y] = INT_MAX;
+	--G.arcnum;
+	return true;
+}
+
+//求图G中顶点x的第一个邻接点，若有则返回顶点号。若x没有邻接点或图中不存在x，则返回 - 1。
+int FirstNeighbor(MGraph G, int x) {
+	for (int i = 0; i < G.vexnum; ++i)
+		if (G.Edge[x][i] != INT_MAX)
+			return i;
+	return -1;
+}
+//假设图G中顶点y是顶点x的一个邻接点，返回除y之外顶点x的下一个邻接点的顶点号，若y是x的最后一个邻接点，则返回 - 1。
+int NextNeighbor(MGraph G, int x, int y) {
+	for (int i = y + 1; i < G.vexnum; ++i)
+		if (G.Edge[x][i] != INT_MAX)
+			return i;
+	return -1;
+}
+
+//获取图G中边(x, y)或<x, y>对应的权值。
+int Get_edge_value(MGraph G, int x, int y){
+	return G.Edge[x][y];
+}
+//设置图G中边(x, y)或<x, y>对应的权值为v。
+bool Set_edge_value(MGraph& G, int x, int y, int v) {
+	if (x == y|| G.Edge[x][y]==INT_MAX)
+		return false;
+	G.Edge[x][y] = v;
+	return true;
+}
+
+
+
+
+
+//访问结点
+void visit(MGraph G, int v) {
+	cout << G.Vex[v] << endl;
+}
+
+//广度优先遍历算法
+vector<int>visited;//访问标记数组
+queue<int>Q;
+//广度优先遍历
+void BFS(MGraph G, int v) {//从顶点v出发广度优先遍历图G
+	visit(G, v);//访问初始顶点v
+	visited[v] = true;//对v作已访问标记
+	Q.push(v);//顶点v入队列Q
+	while (!Q.empty()) {
+		v = Q.front();
+		Q.pop();;//若队列非空顶点v出队列Q
+		for (int w = FirstNeighbor(G, v); w >= 0; w = NextNeighbor(G, v, w))
+			if (!visited[w]) {//w为v的尚未访问的邻接结点
+				visit(G, w);//访问顶点w
+				visited[w] = true;//对w做已访问标记
+				Q.push(w);//顶点w入队列
+			}
+	}
+}
+//BFS算法
+void BFSTraverse(MGraph G) {
+	visited.resize(G.vexnum);
+	for (int i = 0; i < G.vexnum; ++i)
+		visited[i] = false;
+	//InitQuene(Q);
+	for (int i = 0; i < G.vexnum; ++i)
+		if (!visited[i])
+			BFS(G, i);
+}
+
+//深度优先遍历算法
+void DFS(MGraph G, int v) {//从顶点v出发，深度优先遍历图G
+	visit(G, v);//访问顶点v
+	visited[v] = true;//设已访问标记
+	for (int w = FirstNeighbor(G, v); w >= 0; w = NextNeighbor(G, v, w))
+		if (!visited[w]) {//w为u的尚未访问的邻接顶点
+			DFS(G, w);
+		}
+}
+void DFSTraverse(MGraph G) {//对图G进行深度优先遍历
+	visited.resize(G.vexnum);
+	for (int v = 0; v < G.vexnum; ++v)
+		visited[v] = false;//初始化已访问标记数据
+	for (int v = 0; v < G.vexnum; ++v)//本代码中是从v=0开始遍历
+		if (!visited[v])
+			DFS(G, v);
+}
+
+//Floyd算法
+vector<vector<EdgeType>> Floyd(MGraph);
+
+//创建图
+/*
+typedef struct {
+	int Vex[MaxVertexNum];//顶点(vertex)表
+	bool Edge [MaxVertexNum][MaxVertexNum];//邻接矩阵，边表
+	int vernum, arcnum;//图的当前顶点(vertex)数，弧(arc)数
+}MGraph;
+*/
+void CreateGraph(MGraph& G) {
+	InitGraph(G);
+	cout << "输入顶点的个数：";
+	cin >> G.vexnum;
+	G.Vex.resize(G.vexnum);
+	G.Edge.resize(G.vexnum);
+	for (int i = 0; i < G.vexnum; ++i) {
+		G.Edge[i].resize(G.vexnum);
+		for (int j = 0; j < G.vexnum; ++j)
+			G.Edge[i][j] = 0;
+	}
+	for (int i = 0; i < G.vexnum; ++i) {
+		cout << "输入要在第" << i + 1 << "个顶点的数据：";
+		cin >> G.Vex[i];
+	}
+	int n, v;
+	for (int i = 0; i < G.vexnum; ++i) {
+		cout << "输入要在第" << i + 1 << "个顶点添加的边：";
+		cin >> n;
+		cout << "输入该边的权值：";
+		cin >> v;
+		while (n != 9999) {
+			n -= 1;
+			while (!AddEdge(G, i, n)) 
+				cout << "输入无效，请重新输入" << endl;
+			Set_edge_value(G, i, n, v);
+			cout << "输入要在第" << i + 1 << "个顶点添加的边：";
+			cin >> n;
+			cout << "输入该边的权值：";
+			cin >> v;
+		}
+	}
+}
+void testCreateGraph(MGraph& G) {
+	InitGraph(G);
+	G.vexnum = 5;
+	G.Vex.resize(G.vexnum);
+	G.Edge.resize(G.vexnum);
+	for (int i = 0; i < G.vexnum; ++i) {
+		G.Edge[i].resize(G.vexnum);
+		for (int j = 0; j < G.vexnum; ++j) {
+			if (i == j)
+				G.Edge[i][j] = 0;
+			else
+				G.Edge[i][j] = INT_MAX;
+		}
+	}
+	G.Vex[0] = 3;
+	G.Vex[1] = 2;
+	G.Vex[2] = 1;
+	G.Vex[3] = 12;
+	G.Vex[4] = 5;
+	int n;
+	AddEdge(G, 0, 1);
+	Set_edge_value(G, 0, 1, 10);
+	AddEdge(G, 0, 4);
+	Set_edge_value(G, 0, 4, 5);
+
+	AddEdge(G, 1, 2);
+	Set_edge_value(G, 1, 2, 1);
+	AddEdge(G, 1, 4);
+	Set_edge_value(G, 1, 4, 2);
+
+	AddEdge(G, 2, 3);
+	Set_edge_value(G, 2, 3, 4);
+
+	AddEdge(G, 3, 2);
+	Set_edge_value(G, 3, 2, 6);
+	AddEdge(G, 3, 0);
+	Set_edge_value(G, 3, 0, 7);
+
+	AddEdge(G, 4, 2);
+	Set_edge_value(G, 4, 2, 9);
+	AddEdge(G, 4, 1);
+	Set_edge_value(G, 4, 1, 3);
+	AddEdge(G, 4, 3);
+	Set_edge_value(G, 4, 3, 2);
+}
+//测试
+void testMGraph() {
+	MGraph G;
+	testCreateGraph(G);
+	cout << "BFS:" << endl;
+	BFSTraverse(G);
+	cout << endl;
+	cout << "DFS:" << endl;
+	DFSTraverse(G);
+	cout << endl;
+	for (int i = 0; i < G.vexnum; ++i) {
+		for (int j = 0; j < G.vexnum; ++j) {
+			if (G.Edge[i][j] == INT_MAX)
+				cout << "#" << " ";
+			else
+				cout << G.Edge[i][j] << " ";
+		}
+		cout << endl;
+	}
+	cout << endl << endl;
+	vector<vector<EdgeType>>M = Floyd(G);
+	for (int i = 0; i < G.vexnum; ++i) {
+		for (int j = 0; j < G.vexnum; ++j) {
+			if (G.Edge[i][j] == INT_MAX)
+				cout << "#" << " ";
+			else
+				cout << M[i][j] << " ";
+		}
+		cout << endl;
+	}
+}
+
+
+int main() {
+	testMGraph();
+	return 0;
+}
+
+
+//Floyd算法
+vector<vector<EdgeType>> Floyd(MGraph G) {
+	for (int k = 0; k < G.vexnum; ++k) //以k作为中转点
+		for (int i = 0; i < G.vexnum; ++i)//矩阵的行
+			for (int j = 0; j < G.vexnum; ++j) {//矩阵的列
+				if (G.Edge[i][k] != INT_MAX && G.Edge[k][j] != INT_MAX)
+					G.Edge[i][j] = MIN(G.Edge[i][j], G.Edge[i][k] + G.Edge[k][j]);
+			}
+	return G.Edge;
+}

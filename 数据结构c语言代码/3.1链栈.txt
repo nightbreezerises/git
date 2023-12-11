@@ -1,0 +1,132 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+
+//建立结点
+typedef struct Node {
+    int data;
+    struct Node* next;
+}Node;
+//利用上面的结点创建栈
+typedef struct LinkStack {
+    Node* top;
+    int count;
+}LiStack;
+
+//栈的初始化
+LiStack* InitStack() {
+    LiStack* p;//声明栈
+    p = (LiStack*)malloc(sizeof(LiStack));//分配内存
+    if (p == NULL) {//判空
+        printf("创建失败，即将退出程序");
+        exit(0);
+    }
+    p->count = 0;
+    p->top = NULL;//头结点为空
+    return p;
+}
+
+//入栈
+bool PushStack(LiStack*& p, int e) {
+    if (p == NULL)
+        return false;
+    Node* s;
+    s = (Node*)malloc(sizeof(Node));
+    if (p == NULL) {//判空
+        return false;
+    }
+    s->data = e;
+    s->next = p->top;//头插法
+    p->top = s;
+    p->count++;
+    return true;
+}
+
+//出栈
+bool PopStack(LiStack*& p, int& e) {
+    Node* s;
+    s = p->top;
+    if (p->top == NULL)
+    {
+        printf("错误：栈为空\n");
+        return false;
+    }
+    else
+    {
+        e = s->data;
+        p->top = p->top->next;
+        free(s);
+        //delete temp;
+        p->count--;
+        return true;
+    }
+}
+
+//读取栈顶元素（待修改）
+bool GetTop(LiStack* p) {
+    Node* s;
+    s = p->top;
+    if (p->top == NULL)
+    {
+        printf("错误：栈为空");
+        return false;
+    }
+    if (s != NULL)
+    {
+        int e = s->data;
+        printf("\n栈顶元素为%d\n", e);
+        return true;
+    }
+}
+
+//修改栈顶元素
+
+
+//栈的遍历
+bool Print(LiStack* p) {
+    Node* s;
+    s = p->top;
+    if (p->top == NULL)
+    {
+        printf("");
+        printf("错误：栈为空");
+        return false;
+    }
+    while (s != NULL)
+    {
+        printf("%d\t", s->data);
+        s = s->next;
+    }
+    printf("\n");
+    return true;
+}
+
+//栈的销毁
+
+
+
+int main() {
+    LiStack* p;
+    p = InitStack();
+    int m,n;
+    printf("请输入栈中元素个数：\n");
+    scanf("%d", &m);
+    for (int i = 1; i <= m; i++) {
+        printf("请输入第%d个元素：",i);
+        scanf("%d", &n);
+        PushStack(p, n);
+    }
+    printf("遍历栈：\n");
+    Print(p);
+
+    //出栈
+    PopStack(p, n);
+    printf("出栈\n出栈元素为：%d\n", n);
+    printf("遍历栈：\n");
+    Print(p);
+
+    //读取栈顶元素
+    GetTop(p);
+
+    return 0;
+}

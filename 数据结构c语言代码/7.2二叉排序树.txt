@@ -1,0 +1,87 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+
+
+//定义二叉排序树(Binary Sort Tree)
+typedef struct BSTNode {
+	int key;                              //关键字
+	struct BSTNode* lchild, * rchild;
+}BSTNode, * BSTree;
+
+//在二叉排序树中查找值为key的结点
+BSTNode* BST_Search(BSTree T, int key) {
+	while (T != NULL && key != T->key) {//若树空或等于根结点值，则结束循环
+		if (key < T->key)
+			T = T->lchild;//小于，访问左子树
+		else
+			T = T->rchild;//大于，访问右子树
+	}
+	return T;
+}
+
+//在二叉排序树中查找值为key的结点(递归实现)
+BSTNode* BSTSearch(BSTree T, int key) {
+	if (T == NULL)
+		return NULL;//查找失败
+	if (key == T->key)
+		return T;
+	else if (key < T->key)
+		return BSTSearch(T->lchild, key);
+	else
+		return BSTSearch(T->rchild, key);
+}
+
+//在二叉排序树中插入关键字为为k的结点
+bool BST_Insert(BSTree& T, int k) {
+	if (T == NULL) {//空树，建立新结点
+		T = (BSTree)malloc(sizeof(BSTree));
+		T->key = k;
+		T->lchild = T->rchild = NULL;
+		return true;//插入成功
+	}
+	else if (k == T->key)
+		return false;//存在相同关键字的结点时插入失败
+	else if (k < T->key)
+		return BST_Insert(T->lchild, k);//插入左子树
+	else
+		return BST_Insert(T->rchild, k);//插入右子树
+}
+
+//二叉排序树的构造
+//str为插入的数组，n为插入元素的个数
+void Creat_BST(BSTree &T,int str[],int n) {
+	T = NULL;
+	for (int i = 0; i < n; i++) 
+		BST_Insert(T, str[i]);
+}
+
+//访问T的关键字
+void visit(BSTree T) {
+	printf("%d ", T->key);
+}
+
+//中序遍历
+void Inoreder(BSTree T) {
+	if (T != NULL) {
+		Inoreder(T->lchild);
+		visit(T);
+		Inoreder(T->rchild);
+	}
+}
+
+void test() {
+	BSTree T;
+	int a[255], n = 10;
+	for (int i = 0; i < 10; i++) {
+		printf("输入第%d个数字:", i + 1);
+		scanf("%d", &a[i]);
+	}
+	Creat_BST(T, a, n);
+	Inoreder(T);
+}
+
+int main() {
+	test();
+	return 0;
+}

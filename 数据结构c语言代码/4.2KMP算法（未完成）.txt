@@ -1,0 +1,129 @@
+#include<iostream>
+#include<cstdlib>
+#include<cstring>
+#define MAXLEN 255
+
+typedef struct SString {
+	char ch[MAXLEN];//字符串，1不存放字符
+	int length;//字符串的长度
+}SString;
+
+void print(SString S) {
+	for (int i = 1; i <= S.length; ++i)
+		printf("%c", S.ch[i]);
+}
+
+void set(SString& S, char str[]) {
+	S.length = strlen(str);
+	S.ch[0] = '0';
+	for (int i = 1; i <= S.length; ++i){
+		S.ch[i] = str[i - 1];
+	}
+	S.ch[S.length + 1] = '\0'; // 字符串结尾标志
+}
+
+//朴素模式匹配算法
+int Index(SString S, SString T) {
+	int i = 1, j = 1;
+	while (i <= S.length && j <= T.length) {
+		if (S.ch[i] == T.ch[j]) {
+			++i; ++j;
+		}
+		else {
+			i = i - j + 2;
+			j = 1;
+		}
+	}
+	if (j > T.length)
+		return i - T.length;
+	else
+		return 0;
+}
+
+void get_next(SString T, int next[]) {
+	int i = 1, j = 0;
+	next[1] = 0;
+	while (i < T.length) {
+		//相同时在上一个next值基础上加1
+		if (j == 0 || T.ch[i] == T.ch[j]) {
+			++i; ++j;
+			next[i] = j;
+		}
+		//不同时回退
+		else
+			j = next[j];
+	}
+}
+
+void get_nextval(SString T, int nextval[]) {
+	int i = 1, j = 0;
+	nextval[1] = 0;
+	while (i < T.length) {
+		//相同时在上一个next值基础上加1
+		if (j == 0 || T.ch[i] == T.ch[j]) {
+			++i; ++j;
+			if (T.ch[i] != T.ch[j])nextval[i] = j;//如果下一个不相等，那么反复回退（相当于进行多次next）
+			else nextval[i] = nextval[j];//这步相当于next[i] = j;
+		}
+		else
+			j = nextval[j];
+	}
+}
+
+int index_KMP_next(SString S, SString T) {
+	int next[MAXLEN];
+	get_next(T, next);
+	int i = 1, j = 1;
+	while (i <= S.length && j <= T.length) {
+		if (j == 0 || S.ch[i] == T.ch[j]) {
+			++i; ++j;
+		}
+		else 
+			j = next[j];
+	}
+	if (j > T.length)
+		return i - T.length;
+	else
+		return 0;
+}
+
+//KMP算法
+int index_KMP(SString S, SString T) {
+	int nextval[MAXLEN];
+	get_nextval(T, nextval);
+	int i = 1, j = 1;
+	while (i <= S.length && j <= T.length) {
+		if (j == 0 || S.ch[i] == T.ch[j]) {
+			++i; ++j;
+		}
+		else
+			j = nextval[j];
+	}
+	if (j > T.length)
+		return i - T.length;
+	else
+		return 0;
+}
+
+int main() {
+	SString S;
+	SString T;
+	//char str1[MAXLEN] = "aaabaaaaabaaaaaaa";
+	//char str2[MAXLEN] = "aaaab";
+	char str1[] = "aaabaacccsasfdaaaabaaaaaaa";
+	char str2[] = "aaaab";
+	set(S, str1);
+	set(T, str2);
+	int a, b, c;
+	a = Index(S, T);
+	b = index_KMP_next(S, T);
+	c = index_KMP(S, T);
+	printf("Index: %d\n", a);
+	printf("KMP next:%d\n", b);
+	printf("KMP:%d\n", c);
+	/*
+	std::cout << Index(S, T) << std::endl;
+	std::cout << index_KMP_next(S, T) << std::endl;
+	std::cout << index_KMP(S, T) << std::endl;
+	*/
+}

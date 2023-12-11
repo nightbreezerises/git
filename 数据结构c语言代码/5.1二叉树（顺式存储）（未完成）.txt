@@ -1,0 +1,95 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+#include<math.h>
+#define MaxSize 256
+
+//完全二叉树的顺序存储
+struct TreeNode {
+	int data;
+	bool isEmpty;
+};
+
+//树的判空
+bool TreeEmpty(TreeNode t[MaxSize]) {
+	int e = 0;
+	for (int i = 0; i < MaxSize; i++) {
+		e += t[i].isEmpty;
+	}
+	if (e)
+		return false;
+	else
+		return true;//当树的元素都为空时，e才为0
+}
+
+//树的插入
+TreeNode TreeInsect(TreeNode t[MaxSize]) {
+	
+}
+
+
+//树的查找
+TreeNode GetElem(TreeNode t[MaxSize]) {
+
+}
+
+//判断是否为左孩子
+bool LChildNode(TreeNode t[MaxSize]) {
+
+}
+
+//判断是否为左孩子
+bool RChildNode(TreeNode t[MaxSize]) {
+
+}
+
+//树的深度
+int TreeHeight(TreeNode t[MaxSize]) {
+	int j;//定义层次指标j
+	for (j = 8; j > 0; j--) {//从第八层开始遍历
+		for (int i = pow(2, j - 1); i < pow(2, j); i++) {
+			if (!t[i].isEmpty)
+				return j;//如果该层非空，则返回深度j
+		}
+		j--;
+	}
+	return 0;
+}
+
+//树的按层次遍历
+void TreePrint(TreeNode t[MaxSize]) {
+	int height = TreeHeight(t[MaxSize]);
+	for (int j = 1; j <= height; j++) {//层次指标j
+		printf("树的第%d层为：", j);
+		for (int i = pow(2, j - 1); i < pow(2, j); i++) {
+			printf("第%d层第%d个元素为：", j, i - pow(2, j - 1) + 1);
+		}
+	}
+}
+
+//树按层次建立
+void TreeBuilt(TreeNode t[MaxSize],int e) {//e为输入元素的个数
+	int height = ceil(log2(e+1));
+	for (int j = 1; j <= height; j++) {//层次指标j
+		printf("输入树的第%d层：", j);
+		for (int i = pow(2, j - 1); i < pow(2, j) && i <= e; i++) {
+			printf("输入第%d层第%d个元素：", j, i - pow(2, j - 1) + 1);
+			scanf("%d", t[MaxSize].data);
+			t[MaxSize].isEmpty = 1;
+		}
+	}
+	TreePrint(t[MaxSize]);
+}
+
+
+int main() {
+	TreeNode t[MaxSize];
+	for (int i = 0; i < MaxSize; i++) {
+		t[i].isEmpty = 0;//初始化为空树
+	}
+	int n;
+	printf("请输入要存储的元素数目：");
+	scanf("%d", &n);
+	TreeBuilt(t[MaxSize], n);
+	TreePrint(t[MaxSize]);
+}

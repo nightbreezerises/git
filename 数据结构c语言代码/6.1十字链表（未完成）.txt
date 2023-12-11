@@ -1,0 +1,30 @@
+#include<iostream>
+#include<cmath>
+#include<typeinfo>
+
+using std::cout;
+using std::cin;
+using std::endl;
+
+#define MaxVertexNum 100
+
+//typedef int InfoType;//权值类型
+//弧结点
+typedef struct ArcNode {
+	int hlink;//弧头结点编号
+	int tlink;//弧尾结点编号
+	struct ArcNode* headcex;//弧头相同的下一条弧
+	struct ArcNode* tailcex;//弧尾相同的下一条弧
+	//InfoType info;//网的边权值
+}ArcNode;
+//顶点结点
+typedef struct VNode {
+	int data;//顶点信息
+	ArcNode firstin;//该顶点作为弧头的第一条弧
+	ArcNode firstout;//该顶点作为弧尾的第一条弧
+}VNode, VArray[MaxVertexNum];
+//十字链表
+typedef struct {
+	VArray vertices;//十字链表
+	int vexnum, arcnum;//图的顶点数和弧数
+}AcrossLinker;

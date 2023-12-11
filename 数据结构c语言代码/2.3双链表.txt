@@ -1,0 +1,245 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+
+//双链表的定义
+typedef struct DNode {
+	int data;
+	struct DNode* next, * prior;
+}DNode, * DLinkList;
+
+//双链表的初始化
+bool InitList(DLinkList& L) {
+	L = (DNode*)malloc(sizeof(DNode));
+	if (L = NULL)
+		return false;
+	L->next = NULL;
+	L->prior = NULL;
+	return true;
+}
+
+//双链表的逆序建立
+DLinkList ListCreate(DLinkList& L) {
+	int x;
+	L = (DLinkList)malloc(sizeof(DNode));//创建头结点
+	DNode* s;
+	L->next = NULL;//初始化为空链表
+	L->prior = NULL;
+	scanf("%d", &x);//输入结点的值
+	while (x != 9999) {//输入9999表示结束
+		s = (DNode*)malloc(sizeof(DNode));//创建新结点
+		s->data = x;
+		s->next = L->next;
+		if (L->next != NULL)
+			L->next->prior = s;
+		s->prior = L;
+		L->next = s;
+		scanf("%d", &x);
+	}
+	return L;
+}
+
+//双链表的顺序建立
+DLinkList ListTailCreate(DLinkList& L) {
+	int x;
+	L = (DLinkList)malloc(sizeof(DNode));//创建头结点
+	L->next = NULL;//初始化为空链表
+	L->prior = NULL;
+	DNode* s, *r = L;
+	scanf("%d", &x);//输入结点的值
+	while (x != 9999) {//输入9999表示结束
+		s = (DNode*)malloc(sizeof(DNode));//创建新结点
+		s->data = x;
+		r->next = s;
+		s->prior = r;
+		r = s;
+		scanf("%d", &x);
+	}
+	r->next = NULL;
+	return L;
+}
+
+//双链表的按位查找
+DNode* GetElem(DLinkList L, int i) {
+	DNode* p = L->next;
+	if (i == 0)
+		return L;
+	if (i < 1)
+		return NULL;
+	for (int j = 1; p != NULL && j < i; j++)
+		p = p->next;
+	return p;
+}
+
+//双链表的按值查找
+DNode* LocateElem(DLinkList L, int e) {
+	DNode* p = L->next;
+	while (p != NULL && p->data != e)
+		p = p->next;
+	return p;
+}
+void Locate(DLinkList L, int e) {
+	int b = 1;
+	DNode* p = L->next;
+	while (p != NULL && p->data != e) {
+		p = p->next;
+		b++;
+	}
+	if (p != NULL)
+		printf("查找数据的位序为：%d\n", b);
+	else
+		printf("位置不合法");
+}
+
+//双链表的插入（带头结点）
+bool ListInsert(DLinkList& L, int i, int e) {
+	if (i < 1)
+		return false;
+	DNode* p, * s;
+	p = L;
+	for (int j = 1; p != NULL && j < i; j++)
+		p = p->next;
+	if (p == NULL)//i值不合法
+		return false;
+	s = (DNode*)malloc(sizeof(DNode));//创建新结点
+	s->data = e;
+	s->next = p->next;
+	if (L->next != NULL)
+		p->next->prior = s;
+	s->prior = p;
+	p->next = s;
+	return true;
+}
+
+//删除指定结点
+bool ListDelete(DLinkList& L, int i, int& e) {
+	if (i < 1)
+		return false;
+	DNode* p;
+	p = L;
+	for (int j = 1; p != NULL && j < i; j++)
+		p = p->next;
+	if (p == NULL)//i值不合法
+		return false;
+	DNode* q = p->next;
+	e = q->data;
+	p->next = q->next;
+	if (q->next != NULL)
+		q->next->prior = p;
+	free(q);
+	return true;
+}
+
+//双链表后向遍历
+void printList(DLinkList L) {
+	DNode* p = L->next;
+	int i = 0;
+	while (p) {
+		printf("第%d个元素的值为:%d\n", ++i, p->data);
+		p = p->next;
+	}
+	printf("\n");
+}
+
+//双链表的长度
+int Length(DLinkList L) {
+	int len;
+	DNode* p = L;
+	for (len = 0; p->next != NULL; len++) {
+		p = p->next;
+	}
+	return len;
+}
+
+void testList() {
+	DLinkList L;
+	printf("请输入双链表的数据：\n");
+	ListCreate(L);
+	printList(L);
+
+	//插入 
+	int i;
+	int x;
+	printf("请输入插入数据的位置：");
+	scanf("%d", &i);
+	printf("请输入插入数据的值：");
+	scanf("%d", &x);
+	ListInsert(L, i, x);
+	printList(L);
+
+	//删除
+	printf("请输入删除数据的位置：");
+	scanf("%d", &i);
+	ListDelete(L, i, x);
+	printf("删除数据的值为：%d\n", x);
+	printList(L);
+
+	//按位查找
+	printf("请输入查找数据的位置：");
+	scanf("%d", &i);
+	if (GetElem(L, i) != NULL)
+		printf("查找数据的位序为：%d\n", GetElem(L, i)->data);
+	else
+		printf("位置不合法\n");
+	printList(L);
+
+	//按值查找
+	printf("请输入查找数据的值：");
+	scanf("%d", &i);
+	Locate(L, i);
+	printList(L);
+
+	//双链表表长
+	int len = Length(L);
+	printf("表长为：%d", len);
+
+
+}
+void testListTailCreate() {
+	DLinkList L;
+	printf("请输入双链表的数据：\n");
+	ListTailCreate(L);
+	printList(L);
+
+	//插入 
+	int i;
+	int x;
+	printf("请输入插入数据的位置：");
+	scanf("%d", &i);
+	printf("请输入插入数据的值：");
+	scanf("%d", &x);
+	ListInsert(L, i, x);
+	printList(L);
+
+	//删除
+	printf("请输入删除数据的位置：");
+	scanf("%d", &i);
+	ListDelete(L, i, x);
+	printf("删除数据的值为：%d\n", x);
+	printList(L);
+
+	//按位查找
+	printf("请输入查找数据的位置：");
+	scanf("%d", &i);
+	if (GetElem(L, i) != NULL)
+		printf("查找数据的位序为：%d\n", GetElem(L, i)->data);
+	else
+		printf("位置不合法\n");
+	printList(L);
+
+	//按值查找
+	printf("请输入查找数据的值：");
+	scanf("%d", &i);
+	Locate(L, i);
+	printList(L);
+
+	//双链表表长
+	int len = Length(L);
+	printf("表长为：%d", len);
+
+}
+
+int main() { 
+	testListTailCreate();
+	return 0;
+}

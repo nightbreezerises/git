@@ -1,0 +1,248 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+
+//循环单链表的定义
+typedef struct LNode {
+	int data;
+	struct LNode* next;
+}LNode, * LinkList;
+
+//循环单链表的初始化
+bool InitList(LinkList& L) {
+	L = (LNode*)malloc(sizeof(LNode));
+	if (L == NULL)
+		return false;
+	L->next = L;//L的后继指向自身
+	return true;
+}
+
+//判断循环单链表是否为空
+bool Empty(LinkList L) {
+	if (L->next == L)
+		return true;
+	else
+		return false;
+}
+
+//判断结点p是否为循环单链表的表尾结点
+bool isTail(LinkList L, LNode* p) {
+	if (p->next == L)
+		return true;
+	else
+		return false;
+}
+
+//头插法建立单链表
+LinkList List_HeadInsert(LinkList& L) {
+	int x;
+	LNode* s;
+	L = (LNode*)malloc(sizeof(LNode));
+	L->next = L;//L的后继指向自身
+	scanf("%d", &x);//输入结点的值
+	while (x != 9999) {//输入9999表示结束
+		s = (LNode*)malloc(sizeof(LNode));//创建新结点
+		s->data = x;
+		s->next = L->next;
+		L->next = s;//将新结点插入表中，L为头指针
+		scanf("%d", &x);
+	}
+	return L;
+}
+
+//尾插法建立单链表
+LinkList List_TailInsert(LinkList& L) {
+	int x;
+	LNode* s, * r = L;//r为表尾指针
+	scanf("%d", &x);//输入结点的值
+	while (x != 9999) {//输入9999表示结束
+		s = (LNode*)malloc(sizeof(LNode));//创建新结点
+		s->data = x;
+		r->next = s;
+		r = s;//r指向新的表尾结点
+		scanf("%d", &x);
+	}
+	r->next = L;//尾结点后继指向头结点
+	return L;
+}
+
+//单链表的按位查找
+LNode* GetElem(LinkList L, int i) {
+	LNode* p = L->next;
+	if (i == 0)
+		return L;
+	if (i < 1)
+		return NULL;
+	for (int j = 1; p != L && j < i; j++)
+		p = p->next;
+	return p;
+}
+
+//单链表的按值查找
+LNode* LocateElem(LinkList L, int e) {
+	LNode* p = L->next;
+	while (p != L && p->data != e)
+		p = p->next;
+	return p;
+}
+void Locate(LinkList L, int e) {
+	int b = 1;
+	LNode* p = L->next;
+	while (p != L && p->data != e) {
+		p = p->next;
+		b++;
+	}
+	if (p != L)
+		printf("查找数据的位序为：%d\n", b);
+	else
+		printf("位置不合法\n");
+}
+
+//单链表的插入
+bool ListInsert(LinkList& L, int i, int e) {
+	if (i < 1)
+		return false;
+	LNode* p;
+	p = L;
+	for (int j = 1; (j == 1 || p != L) && j < i; j++)
+		p = p->next;
+	if (p == NULL || (i != 1 && p == L))
+		return false;//i值不合法
+	LNode* s = (LNode*)malloc(sizeof(LNode));
+	s->data = e;
+	s->next = p->next;
+	p->next = s;
+	return true;
+}
+
+//删除指定结点
+bool ListDelete(LinkList& L, int i, int& e) {
+	if (i < 1)
+		return false;
+	LNode* p;
+	p = L;
+	for (int j = 1; (j == 1 || p != L) && j < i; j++)
+		p = p->next;
+	if (p == NULL || (i != 1 && p == L))//i值不合法
+		return false;
+	LNode* q = p->next;
+	e = q->data;
+	p->next = q->next;
+	free(q);
+	return true;
+}
+
+//单链表的遍历
+void printList(LinkList L) {
+	LNode* p = L->next;
+	for (int i = 0; p != L; p = p->next) 
+		printf("第%d个元素的值为:%d\n", ++i, p->data);
+}
+
+//单链表的长度
+int Length(LinkList L) {
+	if (L->next == L)
+		return 0;
+	int len;
+	LNode* p = L->next;
+	for (len = 1; p->next != L; len++) {
+		p = p->next;
+	}
+	return len;
+}
+
+//测试
+void testListHeadcreate() {//头插法创建循环单链表
+	//创建 
+	LinkList L;
+	InitList(L);
+	printf("请输入循环单链表的数据：\n");
+	List_HeadInsert(L);
+	printList(L);
+
+	//插入 
+	int i;
+	int x;
+	printf("请输入插入数据的位置：");
+	scanf("%d", &i);
+	printf("请输入插入数据的值：");
+	scanf("%d", &x);
+	ListInsert(L, i, x);
+	printList(L);
+
+	//删除
+	printf("请输入删除数据的位置：");
+	scanf("%d", &i);
+	ListDelete(L, i, x);
+	printf("删除数据的值为：%d\n", x);
+	printList(L);
+
+	//按位查找
+	printf("请输入查找数据的位置：");
+	scanf("%d", &i);
+	if (GetElem(L, i) != NULL)
+		printf("查找数据的位序为：%d\n", GetElem(L, i)->data);
+	else
+		printf("位置不合法");
+	printList(L);
+
+	//按值查找
+	printf("请输入查找数据的值：");
+	scanf("%d", &i);
+	Locate(L, i);
+	printList(L);
+
+	//单链表表长
+	int len = Length(L);
+	printf("表长为：%d", len);
+
+}
+void testListTailcreate() {//尾插法创建循环单链表
+	//创建 
+	LinkList L;
+	InitList(L);
+	printf("请输入循环单链表的数据：\n");
+	List_TailInsert(L);
+	printList(L);
+
+	//插入 
+	int i;
+	int x;
+	printf("请输入插入数据的位置：");
+	scanf("%d", &i);
+	printf("请输入插入数据的值：");
+	scanf("%d", &x);
+	ListInsert(L, i, x);
+	printList(L);
+
+	//删除
+	printf("请输入删除数据的位置：");
+	scanf("%d", &i);
+	ListDelete(L, i, x);
+	printf("删除数据的值为：%d\n", x);
+	printList(L);
+
+	//按位查找
+	printf("请输入查找数据的位置：");
+	scanf("%d", &i);
+	if (GetElem(L, i) != NULL)
+		printf("查找数据的位序为：%d\n", GetElem(L, i)->data);
+	else
+		printf("位置不合法");
+	printList(L);
+
+	//按值查找
+	printf("请输入查找数据的值：");
+	scanf("%d", &i);
+	Locate(L, i);
+	printList(L);
+
+	//单链表表长
+	int len = Length(L);
+	printf("表长为：%d", len);
+
+}
+
+int main() {
+	testListHeadcreate();
+}

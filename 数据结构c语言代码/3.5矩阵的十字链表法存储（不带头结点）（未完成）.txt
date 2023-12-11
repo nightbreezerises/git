@@ -1,0 +1,227 @@
+#include<iostream>
+#include<cmath>
+#include<typeinfo>
+#include<cstdlib>
+#include<vector>
+
+using std::cout;
+using std::cin;
+using std::endl;
+using std::swap;
+using std::vector;
+
+
+
+
+//矩阵
+//矩阵结点
+typedef struct dataNode {
+	int i;//行
+	int j;//列
+	int data;//数据
+	struct dataNode* inext;//当前行的下一个结点
+	struct dataNode* jnext;//当前列的下一个结点
+}dataNode;
+//行/列起始结点
+typedef struct FirstNode {
+	int n;//表示第n行/列
+	dataNode* firstnum;//第一个结点
+}Node;
+//十字链表法存储稀疏矩阵
+typedef struct {
+	int row_num;//行数
+	int column_num;//列数
+	vector<Node>row;//行
+	vector<Node>column;//列
+}Matrix;
+
+//初始化一个m行n列矩阵
+void InitMatrix(Matrix& M, int m, int n) {
+	M.row_num = m;
+	M.column_num = n;
+	M.row.resize(m);
+	M.column.resize(n);
+	for (int i = 0; i < m; ++i) {
+		M.row[i].n = i + 1;
+		M.column[i].n = i + 1;
+		M.row[i].firstnum = NULL;
+		M.column[i].firstnum = NULL;
+	}
+}
+
+//在矩阵第m行n列位置插入元素（待处理）
+bool Insert_Matrix(Matrix& M, int m, int n, int e) {
+	if (m > M.row_num || n > M.column_num || m <= 0 || n <= 0)
+		return false;
+	m -= 1; n -= 1;
+	dataNode* r, * s = NULL;//s指向当前要插入的结点，r为辅助指针
+	//由于各个链表无头结点，所以需要单独处理链表为空时的情况
+	if (M.row[m].firstnum == NULL) {//第一个行结点为空
+		//行链表的处理
+		M.row[m].firstnum = (dataNode*)malloc(sizeof(dataNode));
+		if (M.row[m].firstnum == NULL)
+			exit(1);
+		M.row[m].firstnum->inext = NULL;
+		//数据的记录
+		M.row[m].firstnum->i = m;
+		M.row[m].firstnum->j = n;
+		M.row[m].firstnum->data = e;
+		//情况一：第一个行列头结点均为空
+		if (M.column[n].firstnum == NULL ) {
+			//列链表的处理
+			M.column[n].firstnum = M.row[m].firstnum;//行和列第一个结点相同
+			M.column[n].firstnum->jnext = NULL;
+			return true;
+		}
+		//情况二：第一个行头结点为空，第一个列头结点不为空
+		s = M.row[m].firstnum;
+	}
+	else {//第一个行结点不为空时的处理
+		s = (dataNode*)malloc(sizeof(dataNode));
+		if (s == NULL)
+			exit(1);
+		//数据的记录
+		s->i = m;
+		s->j = n;
+		s->data = e;
+		//当前行链表的处理
+		if (M.row[m].firstnum->j < n) {
+			s->inext = M.row[m].firstnum;
+			M.row[m].firstnum = s;
+		}
+		else {
+			for (r = M.row[m].firstnum; r->inext != NULL && r->inext->j < n; r = r->inext);//在第m行中寻找第n个元素
+			if (r->inext != NULL && r->inext->j == n)
+				return false;//表示该位置已有元素
+			s->inext = r->inext; r->inext = s;//后插操作
+		}
+	}
+	//列处理
+	if (M.column[n].firstnum == NULL) {//第一个列结点为空
+		//情况三：第一个行头结点不为空，第一个列头结点为空
+		M.column[n].firstnum = s;
+		M.column[n].firstnum->jnext = NULL;
+	}
+	else {
+		//情况四：第一个行列头结点均不为空
+		for (r = M.column[n].firstnum; r->jnext != NULL && r->jnext->i < m; r = r->jnext);//在第n行中寻找第m个元素
+		s->jnext = r->jnext; r->jnext = s;//后插操作
+	}
+	return true;
+}
+
+//在矩阵第m行n列位置删除元素
+bool Delete_Matrix(Matrix& M, int m, int n, int& e) {
+	if (m > M.row_num || n > M.column_num || m <= 0 || n <= 0)
+		return false;
+	m -= 1; n -= 1;
+	dataNode* r, * s = NULL;
+	//判断链表是否为空
+	if (M.row[m].firstnum == NULL || M.column[n].firstnum == NULL)
+		return false;//当前行和列没有元素时报错
+	//由于各个链表无头结点，所以需要单独处理删除头指针指向元素的情况
+	if (M.row[m].firstnum->i == m) {
+		//行处理
+		s = M.row[m].firstnum;
+		M.row[m].firstnum = s->inext;
+		//情况一：行列均需处理
+		if (M.column[n].firstnum->j == n) {
+			//列处理
+			M.column[n].firstnum = s->jnext;
+			free(s);
+			return true;
+		}
+		//情况二：行单独处理
+	}
+	else {//行不需单独处理
+		for (r = M.row[m].firstnum; r->inext != NULL && r->j != n; r = r->inext);//在第m行中寻找第n个元素
+		if (r->inext != NULL && r->j != n)
+			return false;//表示该位置没有元素
+		r->inext = r->inext->inext;
+	}
+	//列处理
+	if (M.column[n].firstnum->j == n) {
+		//情况三：列单独处理
+		M.column[n].firstnum = s->jnext;
+	}
+	else{
+		for (r = M.column[n].firstnum; r->jnext != NULL && r->i != m; r = r->jnext);//在第n行中寻找第m个元素
+		s = r->jnext;
+		r->jnext = s->jnext;
+	}
+	free(s);
+	return true;
+}
+
+//遍历矩阵
+void printf(Matrix M) {
+	int num = 0;
+	for (int i = 0; i < M.row_num; ++i) {
+		for (dataNode* p = M.row[i].firstnum; p != NULL; p = p->inext) {
+			cout << "m[" << p->i + 1 << "][" << p->j + 1 << "] = " << p->data << " ";
+			if (++num % 5 == 0)
+				cout << endl;
+		}
+	}
+}
+
+void printf_matrix(Matrix M) {
+	vector<int>B(M.column_num, 0);
+	vector<vector<int>>A(M.row_num, B);
+	for (int i = 0; i < M.row_num; ++i)
+		for (dataNode* p = M.row[i].firstnum; p != NULL; p = p->inext)
+			A[i][p->j] = p->data;
+	for (int i = 0; i < M.row_num; ++i) {
+		for (int j = 0; j < M.column_num; ++j)
+			cout << "A" << i + 1 << j + 1 << " = " << A[i][j] << " ";
+		cout << endl;
+	}
+
+}
+
+void CreateMatrix(Matrix& M, int m, int n) {
+	InitMatrix(M, m, n);
+	cout << "输入要插入矩阵的行：";
+	cin >> m;
+	int data;
+	while (m != 9999) {
+		cout << "输入要插入矩阵的列：";
+		cin >> n;
+		cout << "输入该位置的元素：";
+		cin >> data;
+		Insert_Matrix(M, m, n, data);
+		cout << "输入要插入矩阵的行：";
+		cin >> m;
+	}
+}
+
+void testMatrix() {
+	Matrix M;
+	int m, n;
+	cout << "输入矩阵的行数："; cin >> m;
+	cout << "输入矩阵的列数："; cin >> n;
+	CreateMatrix(M, m, n);
+	cout << endl;
+	printf(M);
+	cout << endl;
+	printf_matrix(M);
+	//测试删除
+	int e;
+	cin >> m;
+	while (m != 9999) {
+		cin >> n;
+		if (!Delete_Matrix(M, m, n, e))
+			cout << "删除失败" << endl;
+		cout << endl << endl;
+		printf_matrix(M);
+		cin >> m;
+	}
+}
+
+/*输入以下元素
+5 5   1 2 3   2 3 4   1 5 6    1 1 10   3 2 8   4 3 1   4 1 12    4 5 6    9999
+*/
+
+int main() {
+	testMatrix();
+}

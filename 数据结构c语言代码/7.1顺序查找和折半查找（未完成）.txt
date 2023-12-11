@@ -1,0 +1,41 @@
+#include<iostream>
+#include<cstdlib>
+#include<cstring>
+#include<cmath>
+using namespace std;
+
+//查找表
+typedef struct SSTABLE{
+	int* elem;
+	int length;
+}SSTable;
+
+int Search_Seq(SSTable ST, int key) {
+	int i;
+	for (i = 0; i < ST.length && ST.elem[i] != key; ++i);//从前往后找
+	return (i == ST.length) ? -1 : i;//i为1则查找失败，否则查找成功
+}
+
+//设置哨兵
+int Search_Seq(SSTable ST, int key) {
+	ST.elem[0] = key;
+	int i;
+	for (int i = ST.length; i < ST.elem[i] != key; --i);//从后往前找
+	return i ;//i为0则查找失败，否则查找成功
+}
+
+//折半查找
+//仅适用于有序的顺序表
+int Binary_Search(SqList L, int key) {
+	int low = 0, high = L.length - 1, mid;
+	while (low <= high) {
+		mid = (low + high) / 2;
+		if (L.elem[mid] == key)
+			return mid;
+		else if (key < L.elem[mid])
+			high = mid - 1;
+		else
+			low = mid + 1;
+	}
+	return -1;
+}

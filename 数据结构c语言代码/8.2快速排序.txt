@@ -1,0 +1,46 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+
+//用第一个元素将待排序序列划分成左右两个部分
+int Partition(int A[], int low, int high) {
+	int pivot = A[low];
+	while (low < high) {
+		while (low < high && A[high] >= pivot) --high;
+		A[low] = A[high];
+		while (low < high && A[low] <= pivot)++low;
+		A[high] = A[low];
+	}
+	A[low] = pivot;
+	return low;
+}
+
+//快速排序
+void QuickSort(int A[], int low, int high) {
+	if(low < high) {
+		int pivotpos = Partition(A, low, high);
+		QuickSort(A, low, pivotpos - 1);
+		QuickSort(A, pivotpos + 1, high);
+	}
+}
+
+
+
+
+int main() {
+	int A[20];
+	A[0] = 12;//带哨兵时A[0]不能存数据
+	A[1] = 6;
+	A[2] = 23;
+	A[3] = 13;
+	A[4] = 233;
+	A[5] = 223;
+	A[6] = 213;
+	A[7] = 263;
+	A[8] = 2783;
+	A[9] = 2453;
+	QuickSort(A, 0, 9);
+	for (int i = 0; i < 10; i++)
+		printf("%d\n", A[i]);
+	return 0;
+}

@@ -1,0 +1,103 @@
+#include<iostream>
+#include<cstdlib>
+#include<cmath>
+#include<queue>
+
+using std::cout;
+using std::cin;
+using std::endl;
+using std::ifstream;
+using std::ofstream;
+using std::ostream;
+using std::istream;
+using std::queue;
+
+typedef struct TNode {
+	int data;
+	struct TNode* firstchild, * rightbrother;
+}TNode, * Tree;
+
+
+void InitTree(Tree& T) {
+	T->firstchild = NULL;
+	T->rightbrother = NULL;
+}
+
+bool InsertNewnode(Tree& p, int x) {
+	p = (TNode*)malloc(sizeof(TNode));
+	if (p == NULL)
+		return false;
+	p->data = x;
+	p->firstchild = NULL;
+	p->rightbrother = NULL;
+	return true;
+}
+
+void visit(Tree T) {
+	cout << T->data;
+}
+
+void Preorder(Tree T) {
+	if (T != NULL) {
+		visit(T);//访问根结点
+		Preorder(T->firstchild);//递归遍历左子树
+		Preorder(T->rightbrother);//递归遍历右子树
+	}
+}
+
+void Inorder(Tree T) {//递归算法实现中序遍历
+	if (T != NULL) {
+		Preorder(T->firstchild);//递归遍历左子树
+		visit(T);//访问根结点
+		Preorder(T->rightbrother);//递归遍历右子树
+	}
+}
+
+void Postorder(Tree T) {
+	if (T != NULL) {
+		Preorder(T->firstchild);//递归遍历左子树
+		Preorder(T->rightbrother);//递归遍历右子树
+		visit(T);//访问根结点
+	}
+}
+
+//树的层次遍历
+void lecelorder(Tree T) {
+	queue<Tree>Q;
+	Q.push(T);
+	while (T != NULL && Q.empty()) {
+		T = Q.front();//队头结点出队
+		visit(T);//访问当前结点
+		Q.pop();
+		//将所有孩子结点入队
+		if (T->firstchild != NULL) {
+			T = T->firstchild;
+			Q.push(T);
+			while (T->rightbrother != NULL) {
+				T = T->rightbrother;
+				Q.push(T);
+			}
+		}
+	}
+}
+
+//递归算法创建二叉树
+TNode* CreateBiTree(Tree& T) {
+	int n;
+	cin >> n;
+	if (n == 9999)
+		T = NULL;
+	else {
+		if (!(T = (TNode*)malloc(sizeof(TNode))))
+			exit(OVERFLOW);//内存分配失败则退出
+		T->data = n;
+		CreateBiTree(T->firstchild);
+		CreateBiTree(T->rightbrother);
+	}
+}
+
+int main() {
+
+
+
+}

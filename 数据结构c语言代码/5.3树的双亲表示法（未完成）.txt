@@ -1,0 +1,19 @@
+#include<iostream>
+#include<cmath>
+#include<typeinfo>
+
+using std::cout;
+using std::cin;
+using std::endl;
+
+
+#define MAX_TREE_SIZE 100
+
+typedef struct {
+	int data;//数据元素
+	int parent;//双亲位置域
+}PTNode;
+typedef struct {
+	PTNode nodes[MAX_TREE_SIZE];//双亲表示
+	int n;//结点数
+};

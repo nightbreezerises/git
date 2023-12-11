@@ -1,0 +1,108 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+#define MaxSize 10  //最大存储长度，实际最大存储长度为MaxSize-1=9
+
+//双端队列
+typedef struct {
+	int data[MaxSize];
+	int front, rear;//对头和队尾指针
+}SqQuene;
+
+//队列初始化
+void InitQuene(SqQuene& Q) {
+	Q.rear = Q.front = 0;
+}
+
+//队列判空
+bool QueneEmpty(SqQuene Q) {
+	if (Q.rear == Q.front)
+		return true;
+	else
+		return false;
+}
+
+//队列判满
+bool QueneFull(SqQuene Q) {
+	if ((Q.rear + 1) % MaxSize == Q.front)
+		return true;
+	else
+		return false;
+}
+
+//入队
+bool EnQueneFront(SqQuene& Q, int x) {//从队头入队
+	if (QueneFull(Q))//队满报错
+		return false;
+	Q.data[Q.front] = x;//新元素插入队头
+	Q.front = (Q.front - 1) % MaxSize;//对头指针前移
+	return true;
+}
+bool EnQueneRear(SqQuene& Q, int x) {//从队尾入队
+	if (QueneFull(Q))//队满报错
+		return false;
+	Q.data[Q.rear] = x;//新元素插入队尾
+	Q.rear = (Q.rear + 1) % MaxSize;//队尾指针后移
+	return true;
+}
+
+//出队
+bool DeQueneFront(SqQuene& Q, int& x) {
+	if (QueneEmpty(Q))//队满报错
+		return false;
+	x = Q.data[Q.front];//记录删除元素
+	Q.front = (Q.front + 1) % MaxSize;//队头指针后移
+	return true;
+}
+bool DeQueneRear(SqQuene& Q, int& x) {
+	if (QueneEmpty(Q))//队满报错
+		return false;
+	x = Q.data[Q.rear];//记录删除元素
+	Q.rear = (Q.rear - 1) % MaxSize;//队尾指针前移
+	return true;
+}
+
+//查找队头元素
+bool GetHead(SqQuene Q, int& x) {
+	if (QueneEmpty(Q))//队满报错
+		return false;
+	x = Q.data[Q.front];
+	return true;
+}
+
+//求队列长度
+int LengthQuene(SqQuene Q) {
+	int x = (Q.rear + MaxSize - Q.front) % MaxSize;
+	return x;
+}
+
+//遍历队列
+void PrintQuene(SqQuene Q) {
+	for (int i = 0; i < LengthQuene(Q); i++) {//元素输入
+		printf("第%d个元素为：%d\n", i + 1, Q.data[(Q.front + i) % MaxSize]);
+	}
+}
+
+//功能测试
+void testQuene(SqQuene Q) {
+	for (int i = 0, n; i < MaxSize - 1; i++) {//元素输入
+		printf("请输入第%d个元素：", i + 1);
+		scanf("%d", &n);
+		EnQueneRear(Q, n);
+	}
+	PrintQuene(Q);
+	int x = 1;
+	GetHead(Q, x);
+	printf("要查找的元素为：%d\n", x);
+	DeQueneFront(Q, x);
+	PrintQuene(Q);
+	DeQueneRear(Q, x);
+	PrintQuene(Q);
+}
+
+int main() {
+	SqQuene Q;
+	InitQuene(Q);
+	testQuene(Q);
+	return 0;
+}

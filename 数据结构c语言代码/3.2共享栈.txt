@@ -1,0 +1,106 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+#define MaxSize 10
+
+typedef struct SqStack {
+	int data[MaxSize];//静态数组中存放栈中元素
+	int top1;//1号栈顶指针
+	int top0;//0号栈顶指针
+}SqStack;
+
+//栈的初始化
+void InitStack(SqStack &S) {
+	S.top0 = -1;        //栈顶指针初始化
+	S.top1 = MaxSize;
+}
+
+//栈的判空
+bool StackEmpty(SqStack S) {
+	if (S.top0 == -1&& S.top1 == MaxSize)
+		return true;
+	else
+		return false;
+}
+
+//栈的判满
+bool StackFull(SqStack S) {
+	if (S.top0 + 1 == S.top1)
+		return true;
+	else
+		return false;
+}
+
+//入栈
+bool Push0(SqStack &S,int x) {//入top0
+	if (StackFull(S))//判断栈是否已满
+		return false;
+	S.data[++S.top0] = x;
+	return true;
+}
+bool Push1(SqStack& S, int x) {//入top0
+	if (StackFull(S))//判断栈是否已满
+		return false;
+	S.data[--S.top1] = x;
+	return true;
+}
+
+//出栈
+bool Pop0(SqStack& S, int &x) {
+	if (S.top0 == -1)//判断栈是否为空
+		return false;
+	x = S.data[S.top0--];
+	return true;
+}
+bool Pop1(SqStack& S, int& x) {
+	if (S.top1 == MaxSize)//判断栈是否为空
+		return false;
+	x = S.data[S.top1++];
+	return true;
+}
+
+//查找栈顶元素
+bool GetTop0(SqStack& S, int& x) {
+	if (S.top0 == -1 )
+		return false;
+	x = S.data[S.top0];
+	return true;
+}
+bool GetTop1(SqStack& S, int& x) {
+	if (S.top1 == MaxSize)//判断栈是否为空
+		return false;
+	x = S.data[S.top1];
+	return true;
+}
+
+//栈的遍历
+void Print(SqStack S) {
+	printf("栈0：\n");
+	for (int i = 0, n; i <= S.top0; i++) {
+		n = S.data[i];
+		printf("%d\n", n);
+	}
+	printf("栈1：\n");
+	for (int i = MaxSize - 1, n; i >= S.top1; i--) {
+		n = S.data[i];
+		printf("%d\n", n);
+	}
+}
+
+//销毁栈
+void Destory(SqStack& S) {
+	InitStack(S);
+}
+
+int main() {
+	SqStack S;
+	InitStack(S);
+	Push0(S, 3);
+	for (int i = 0, n; i < 9; i++) {
+		printf("输入第%d个元素：", i + 1);
+		scanf("%d", &n);
+		Push1(S, n);
+	}
+	Print(S);
+	return 0;
+}

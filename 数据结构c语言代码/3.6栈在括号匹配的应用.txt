@@ -1,0 +1,80 @@
+#include<iostream>
+#include<cstdlib>
+#include<vector>
+#include<stack>
+
+using std::cout;
+using std::cin;
+using std::endl;
+using std::string;
+using std::stack;
+using std::vector;
+
+
+//括号匹配
+/*
+左括号：入栈
+右括号：弹出栈顶元素，检查是否匹配
+*/
+bool _bracketCheck(vector<char>b) {
+	stack<char>B;
+	for (int i = 0; i < b.size(); ++i) {
+		if (b[i] == '(' || b[i] == '[' || b[i] == '{')
+			B.push(b[i]);
+		else {
+			if (b[i] == ')' && B.top() != '(')
+				return false;
+			if (b[i] == ']' && B.top() != '[')
+				return false;
+			if (b[i] == '}' && B.top() != '{')
+				return false;
+			B.pop();
+		}
+	}
+	return B.empty();//栈空则说明匹配成功
+}
+
+
+
+bool bracketCheck(vector<char>b) {
+	stack<char>B;
+	for (int i = 0; i < b.size(); ++i) {
+		if (b[i] == '{') {
+			if (!B.empty())
+				if (B.top() == '[' || B.top() == '(')
+					return false;
+			B.push(b[i]);
+		}
+		if (b[i] == '[') {
+			if (!B.empty())
+				if (B.top() == '(')
+					return false;
+			B.push(b[i]);
+		}
+		if (b[i] == '(' )
+			B.push(b[i]);
+		else {
+			if (b[i] == ')' && B.top() != '(')
+				return false;
+			if (b[i] == ']' && B.top() != '[')
+				return false;
+			if (b[i] == '}' && B.top() != '{')
+				return false;
+			B.pop();
+		}
+	}
+	return B.empty();//栈空则说明匹配成功
+}
+
+
+int main() {
+	vector<char>B;
+	B.push_back('(');
+	B.push_back('[');
+	B.push_back(']');
+	B.push_back(')');
+	if (_bracketCheck(B))
+		cout << "Y" << endl;
+	if (bracketCheck(B))
+		cout << "Y" << endl;
+}

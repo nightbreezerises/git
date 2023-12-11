@@ -1,0 +1,260 @@
+#include<iostream>
+#include<cstdlib>
+#include<cmath>
+
+#define ElemType int
+
+//定义三叉链表
+typedef struct TriTNode {
+	ElemType data;
+	struct TriTNode* lchild, * parent, * rchild;
+}TriTNode, * TriTree;
+
+
+//三叉链表的初始化
+void InitTree(TriTree& T) {
+	T = new TriTNode;
+	T->lchild = NULL;
+	T->rchild = NULL;
+	T->parent = NULL;//树根的父结点指向空，可用于判断父结点
+}
+
+//访问结点
+void visit(TriTree T) {
+	std::cout << T->data << " ";
+}
+//三叉链表的先序遍历
+void Preorder(TriTree T) {
+	if (T != NULL) {
+		visit(T);//访问根结点
+		Preorder(T->lchild);//递归遍历左子树
+		Preorder(T->rchild);//递归遍历右子树
+	}
+}
+//三叉链表的中序遍历
+void Inorder(TriTree T) {//递归算法实现中序遍历
+	if (T != NULL) {
+		Inorder(T->lchild);//递归遍历左子树
+		visit(T);//访问根结点
+		Inorder(T->rchild);//递归遍历右子树
+	}
+}
+//三叉链表的后序遍历
+void Postorder(TriTree T) {
+	if (T != NULL) {
+		Postorder(T->lchild);//递归遍历左子树
+		Postorder(T->rchild);//递归遍历右子树
+		visit(T);//访问根结点
+	}
+}
+//三叉链表的层次遍历
+#include<queue>
+void lecelorder(TriTree T) {
+	using std::queue;
+	queue<TriTree>Q;
+	TriTree p = NULL;
+	Q.push(T);//将根结点入队
+	while (!Q.empty()) {
+		p = Q.front(); Q.pop();//队头结点出队
+		visit(p);//访问出队结点
+		if (p->lchild != NULL)
+			Q.push(p->lchild);//左孩子入队
+		if (p->rchild != NULL)
+			Q.push(p->rchild);//右孩子入队
+	}
+}
+
+
+
+void CreateBiTree(TriTree& T) {
+	int n;
+	std::cin >> n;
+	if (n == 9999)
+		T = NULL;
+	else {
+		T = new TriTNode;
+		if (!(T = new TriTNode))
+			exit(OVERFLOW);//内存分配失败则退出
+		T->parent = NULL;
+		T->data = n;
+		CreateBiTree(T->lchild);
+		CreateBiTree(T->rchild);
+	}
+}
+
+//由二叉树构建三叉链表
+void CreateTriTree(TriTree& T) {
+	if (T != NULL) {
+		if (T->lchild != NULL)
+			T->lchild->parent = T;
+		if (T->rchild != NULL)
+			T->rchild->parent = T;
+		CreateTriTree(T->lchild);
+		CreateTriTree(T->rchild);
+	}
+}
+
+//线索化
+typedef struct ThreadTNode {
+	ElemType data;
+	struct ThreadTNode* lchild, * rchild, * parent;
+	int ltag, rtag;
+}ThreadNode, * ThreadTree;
+//复制
+void CopyTree(TriTree T, ThreadTree& NewT) {
+	if (T == NULL) {//如果为空树返回0
+		NewT = NULL;
+		return;
+	}
+	else {
+		NewT = new ThreadNode;//开辟内存空间
+		NewT->data = T->data;
+		NewT->ltag = 0, NewT->rtag = 0;
+		CopyTree(T->lchild, NewT->lchild);
+		CopyTree(T->rchild, NewT->rchild);
+	}
+}
+void CreateTriThreadTree(ThreadTree& T) {
+	if (T != NULL) {
+		if (T->lchild != NULL)
+			T->lchild->parent = T;
+		if (T->rchild != NULL)
+			T->rchild->parent = T;
+		CreateTriThreadTree(T->lchild);
+		CreateTriThreadTree(T->rchild);
+	}
+}
+//中序线索化
+void InThread(ThreadTree& p, ThreadTree& pre) {
+	InThread(p->lchild, pre);
+	if (p->lchild == NULL) {
+		p->lchild = pre;
+		p->ltag = 1;
+	}
+	if (pre != NULL && pre->rchild == NULL) {
+		pre->rchild = p;
+		pre->rtag = 1;
+	}
+	pre = p;
+	InThread(p->rchild, pre);
+}
+void CreateInThread(ThreadTree &T) {
+	ThreadNode* pre = NULL;
+	if (T != NULL) {
+		InThread(T, pre);
+		pre->rchild = NULL;
+		pre->rtag = 1;
+	}
+}
+ThreadNode* FirstNode(ThreadNode* p) {
+	while (p->ltag == 0 )p = p->lchild;
+	return p;
+}
+ThreadNode* NextNode(ThreadNode* p) {
+	if (p->rtag == 1)return p->rchild;
+	else return FirstNode(p->rchild);
+}
+void InOrderThreadTree(ThreadTree T) {
+	for (ThreadNode* p = FirstNode(T); p != NULL; p = NextNode(p))
+		std::cout << p->data;
+}
+//先序线索化
+void PreThread(ThreadTree& p, ThreadTree& pre) {
+	if (p->lchild == NULL) {
+		p->lchild = pre;
+		p->ltag = 1;
+	}
+	if (p->rchild == NULL && pre != NULL) {
+		pre->rchild = p;
+		pre->rtag = 1;
+	}
+	pre = p;
+	PreThread(p->lchild, pre);
+	PreThread(p->rchild, pre);
+}
+void CreatePreThread(ThreadTree& T) {
+	ThreadTree pre = NULL;
+	if (T != NULL) {
+		PreThread(T, pre);
+		pre->rchild = NULL;
+		pre->rtag = 1;
+	}
+}
+//后序线索化
+void PostThread(ThreadTree& p, ThreadTree& pre) {
+	if (p->lchild == NULL) {
+		p->lchild = pre;
+		p->ltag = 1;
+	}
+	if (p->rchild == NULL && pre != NULL) {
+		pre->rchild = p;
+		pre->rtag = 1;
+	}
+	pre = p;
+	PostThread(p->lchild, pre);
+	PostThread(p->rchild, pre);
+}
+void CreatePostThread(ThreadTree& T) {
+	ThreadTree pre = NULL;
+	if (T != NULL) {
+		PostThread(T, pre);
+		pre->rchild = NULL;
+		pre->rtag = 1;
+	}
+}
+
+//功能测试
+void testTriTree() {
+	TriTree T;
+	InitTree(T);
+	std::cout << "请输入三叉链表的元素：\n";
+	CreateBiTree(T);//创建树
+	std::cout << "\n先序遍历为：\n";
+	Preorder(T);//先序遍历
+	std::cout << "\n中序遍历为：\n";
+	Inorder(T);//中序遍历
+	std::cout << "\n后序遍历为：\n";
+	Postorder(T);//后序遍历
+	std::cout << "\n层序遍历为：\n";
+	lecelorder(T);//层次遍历
+
+	std::cout << std::endl;
+
+	std::cout << "\n创建三叉链表：\n";
+	CreateTriTree(T);
+	std::cout << "\n先序遍历为：\n";
+	Preorder(T);//先序遍历
+	std::cout << "\n中序遍历为：\n";
+	Inorder(T);//中序遍历
+	std::cout << "\n后序遍历为：\n";
+	Postorder(T);//后序遍历
+	std::cout << "\n层序遍历为：\n";
+	lecelorder(T);//层次遍历
+
+	std::cout << "\n线索化\n";
+	ThreadTree Tree;
+	CopyTree(T, Tree);
+	CreateTriThreadTree(Tree);
+	std::cout << "\n中序遍历为：\n";
+	InOrderThreadTree(Tree);//中序遍历
+}
+
+/*
+6 5 2 4 9999 9999 9999 3 9999 9999 4 2 9999 9999 9999
+
+先序遍历为：
+6 5 2 4 3 4 2
+中序遍历为：
+4 2 5 3 6 2 4
+后序遍历为：
+4 2 3 5 2 4 6
+层序遍历为：
+6 5 4 2 3 2 4
+中序遍历为：
+*/
+
+
+int main() {
+	testTriTree();
+	return 0;
+}

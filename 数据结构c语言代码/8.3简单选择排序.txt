@@ -1,0 +1,40 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+
+//交换
+void swap(int& a, int& b) {
+	int c = b;
+	b = a;
+	a = c;
+}
+
+//简单选择排序
+void SelectSort(int A[], int n) {
+	for (int i = 0; i < n; ++i) {//共进行n趟
+		int min = i;//记录最小元素的位置
+		for (int j = i; j < n; ++j)
+			if (A[j] < A[i])
+				min = j;//更新最小元素位置
+		if (min != i) 
+			swap(A[i], A[min]);
+	}
+}
+
+int main() {
+	int A[20];
+	A[0] = 12;//带哨兵时A[0]不能存数据
+	A[1] = 6;
+	A[2] = 23;
+	A[3] = 13;
+	A[4] = 233;
+	A[5] = 223;
+	A[6] = 213;
+	A[7] = 263;
+	A[8] = 2783;
+	A[9] = 2453;
+	SelectSort(A, 10);
+	for (int i = 0; i < 10; i++)
+		printf("%d\n", A[i]);
+	return 0;
+}

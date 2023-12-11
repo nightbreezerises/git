@@ -1,0 +1,52 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+
+
+
+//归并
+void Merge(int A[], int low, int mid, int high) {
+	int i, j, k;
+	int* B = (int*)malloc(high * sizeof(int));//辅助数组B
+	for (k = low; k <= high; ++k)
+		B[k] = A[k];//将A中所有元素复制到B中
+	for (i = low, j = mid + 1, k = i; i <= mid && j <= high; ++k) {
+		if (B[i] <= B[j]) 
+			A[k] = B[i++];
+		else 
+			A[k] = B[j++];	
+	}
+	//将B数组中未复制的元素复制到A数组中
+	while (i <= mid)A[k++] = B[i++];
+	while (j <= high)A[k++] = B[j++];
+}
+
+//归并排序
+void MergeSort(int A[], int low, int high) {
+	if (low < high) {
+		int mid = (low + high) / 2;//从中间划分
+		MergeSort(A, low, mid);//对左半部分进行归并排序
+		MergeSort(A, mid + 1, high);//对右半部分进行归并排序
+		Merge(A, low, mid, high);//归并
+	}
+}
+
+
+int main() {
+	int A[20];
+	//A[0] = 12;//带哨兵时A[0]不能存数据
+	A[1] = 6;
+	A[2] = 23;
+	A[3] = 13;
+	A[4] = 666;
+	A[5] = 223;
+	A[6] = 213;
+	A[7] = 263;
+	A[8] = 2783;
+	A[9] = 2453;
+	A[10] = 233;
+	MergeSort(A, 0, 10);
+	for (int i = 1; i <= 10; i++)
+		printf("%d\n", A[i]);
+	return 0;
+}

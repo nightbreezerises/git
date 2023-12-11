@@ -1,0 +1,231 @@
+#include<iostream>
+#include<cstdlib>
+#include<cmath>
+
+#define ElemType int
+
+typedef struct BiTNode {
+	ElemType data;
+	struct BiTNode* lchild, * rchild;
+}BiTNode, * BiTree;
+
+//初始化
+void InitTree(BiTree& T) {
+	T->lchild = NULL;
+	T->rchild = NULL;
+}
+
+//访问结点
+void visit(BiTree T) {
+	std::cout << T->data << " ";
+}
+
+//二叉树的先序遍历
+void Preorder(BiTree T) {
+	if (T != NULL) {
+		visit(T);//访问根结点
+		Preorder(T->lchild);//递归遍历左子树
+		Preorder(T->rchild);//递归遍历右子树
+	}
+}
+
+//二叉树的中序遍历
+void Inorder(BiTree T) {//递归算法实现中序遍历
+	if (T != NULL) {
+		Inorder(T->lchild);//递归遍历左子树
+		visit(T);//访问根结点
+		Inorder(T->rchild);//递归遍历右子树
+	}
+}
+//非递归算法二叉树的中序遍历
+#include<stack>
+void InorderTraverse(BiTree T) {//非递归算法实现中序遍历
+	using std::stack;
+	BiTree p = T, q;
+	stack<BiTree>S;
+	while (p || !S.empty()) {//当p为空或者栈非空时执行循环
+		if (p) {
+			S.push(p);//结点入栈
+			p = p->lchild;
+		}
+		else {
+			q = S.top();
+			S.pop();//出栈
+			printf("%d ", q->data);//访问出栈结点
+			p = q->rchild;
+		}
+	}
+}
+
+//二叉树的后序遍历
+void Postorder(BiTree T) {
+	if (T != NULL) {
+		Postorder(T->lchild);//递归遍历左子树
+		Postorder(T->rchild);//递归遍历右子树
+		visit(T);//访问根结点
+	}
+}
+
+//二叉树的层次遍历
+#include<queue>
+void lecelorder(BiTree T) {
+	using std::queue;
+	queue<BiTree>Q;
+	BiTree p = NULL;
+	Q.push(T);//将根结点入队
+	while (!Q.empty()) {
+		p = Q.front(); Q.pop();//队头结点出队
+		visit(p);//访问出队结点
+		if (p->lchild != NULL)
+			Q.push(p->lchild);//左孩子入队
+		if (p->rchild != NULL)
+			Q.push(p->rchild);//右孩子入队
+	}
+}
+
+//递归算法创建二叉树
+void CreateBiTree(BiTree& T) {
+	ElemType n;
+	std::cin >> n;
+	if (n == 9999)
+		T = NULL;
+	else {
+		if (!(T = (BiTNode*)malloc(sizeof(BiTNode))))
+			exit(OVERFLOW);//内存分配失败则退出
+		T->data = n;
+		CreateBiTree(T->lchild);
+		CreateBiTree(T->rchild);
+	}
+}
+
+
+
+//二叉树的复制（可用于获取子树）
+void CopyTree(BiTree T, BiTree& NewT) {
+	if (T == NULL) {//如果为空树返回0
+		NewT = NULL;
+		return;
+	}
+	else {
+		NewT = new BiTNode;//开辟内存空间
+		NewT->data = T->data;
+		CopyTree(T->lchild, NewT->lchild);
+		CopyTree(T->rchild, NewT->rchild);
+	}
+}
+
+//遍历算法计算树的深度
+int m, n;//定义辅助变量计算树的深度
+int Depth(BiTree T) {
+	if (T == NULL)//空树返回0
+		return 0;
+	else {
+		m = Depth(T->lchild);
+		n = Depth(T->rchild);
+		if (m > n)
+			return(m + 1);
+		else
+			return(n + 1);
+	}
+}
+
+//二叉树结点总数计算
+int NodeCount(BiTree T) {
+	if (T == NULL)//空树返回0
+		return 0;
+	else
+		return NodeCount(T->lchild) + NodeCount(T->lchild) + 1;
+}
+
+//二叉树叶子结点总数计算
+int LeadCount(BiTree T) {
+	if (T == NULL)
+		return 0;//如果是空树返回0
+	else if (T->lchild == NULL && T->lchild == NULL)
+		return 1;//如果是叶子结点返回1
+	else
+		return(LeadCount(T->lchild) + LeadCount(T->lchild));
+}
+
+//功能测试
+void testBiTree() {
+	BiTree T;
+	T = (BiTree)malloc(sizeof(BiTree));
+	InitTree(T);
+	printf("请输入二叉树的元素：\n");
+	CreateBiTree(T);//创建树
+	printf("\n先序遍历为：\n");
+	Preorder(T);//先序遍历
+	printf("\n中序遍历为：\n");
+	Inorder(T);//中序遍历
+	printf("\n后序遍历为：\n");
+	Postorder(T);//后序遍历
+	printf("\n层序遍历为：\n");
+	lecelorder(T);//层次遍历
+	printf("\n中序遍历为：\n");
+	InorderTraverse(T);//非递归算法实现的中序遍历
+}
+
+/*
+6 5 2 4 9999 9999 9999 3 9999 9999 4 2 9999 9999 9999
+
+先序遍历为：
+6 5 2 4 3 4 2
+中序遍历为：
+4 2 5 3 6 2 4
+后序遍历为：
+4 2 3 5 2 4 6
+层序遍历为：
+6 5 4 2 3 2 4
+*/
+
+
+
+//线索化
+typedef struct ThreadTNode {
+	ElemType data;
+	struct ThreadTNode* lchild, * rchild;
+	int ltag, rtag;
+}ThreadNode, * ThreadTree;
+//复制
+void CopyTree(BiTree T, ThreadTree& NewT) {
+	if (T == NULL) {//如果为空树返回0
+		NewT = NULL;
+		return;
+	}
+	else {
+		NewT = new ThreadNode;//开辟内存空间
+		NewT->data = T->data;
+		CopyTree(T->lchild, NewT->lchild);
+		CopyTree(T->rchild, NewT->rchild);
+	}
+}
+//中序线索化
+void InThread(ThreadTree& p, ThreadTree& pre) {
+	InThread(p->lchild, pre);
+	if (p->lchild == NULL) {
+		p->lchild = pre;
+		p->ltag = 1;
+	}
+	if (pre != NULL && pre->rchild == NULL) {
+		pre->rchild = p;
+		pre->rtag = 1;
+	}
+	pre = p;
+	InThread(p->rchild, pre);
+}
+void CreateInThread(ThreadTree T) {
+	ThreadNode* pre = NULL;
+	if (T != NULL) {
+		InThread(T, pre);
+		pre->rchild = NULL;
+		pre->rtag = 1;
+	}
+}
+
+
+int main() {
+	testBiTree();
+	return 0;
+}
+

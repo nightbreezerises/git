@@ -1,0 +1,34 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+
+//希尔排序
+void ShellSort(int A[], int n) {
+	int d, i, j;
+	for (d = n / 2; d >= 1; d /= 2) 
+		for (i = d + 1; i <= n; ++i) 
+			if (A[i] < A[i - d]) {
+				A[0] = A[i];
+				for (j = i - d; j > 0 && A[0] < A[j]; j -= d)
+					A[j + d] = A[j];
+				A[j + d] = A[0];
+			}
+}
+
+int main() {
+	int A[20];
+	//A[0] = 12;//带哨兵时A[0]不能存数据
+	A[1] = 6;
+	A[2] = 23;
+	A[3] = 13;
+	A[4] = 233;
+	A[5] = 223;
+	A[6] = 213;
+	A[7] = 263;
+	A[8] = 2783;
+	A[9] = 2453;
+	ShellSort(A, 9);
+	for (int i = 1; i < 10; i++)
+		printf("%d\n", A[i]);
+	return 0;
+}
